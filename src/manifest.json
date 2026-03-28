@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest.json",
+  "chromium:manifest_version": 3,
+  "firefox:manifest_version": 2,
+  "version": "1.0.0",
+  "name": "duckduckgo-custom-tabs",
+  "description": "Customize DuckDuckGo search tabs by redirecting maps, videos, and other sections to your preferred services.",
+  "icons": {
+    "16": "images/icon.png",
+    "32": "images/icon.png",
+    "48": "images/icon.png",
+    "64": "images/icon.png",
+    "128": "images/icon.png"
+  },
+  "chromium:action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "16": "images/icon.png",
+      "32": "images/icon.png",
+      "48": "images/icon.png",
+      "64": "images/icon.png",
+      "128": "images/icon.png"
+    },
+    "default_title": "DuckDuckGo Custom Tabs"
+  },
+  "firefox:browser_action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "16": "images/icon.png",
+      "32": "images/icon.png",
+      "48": "images/icon.png",
+      "64": "images/icon.png",
+      "128": "images/icon.png"
+    },
+    "default_title": "DuckDuckGo Custom Tabs"
+  },
+  "chromium:permissions": ["storage"],
+  "firefox:permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://duckduckgo.com/*"],
+      "js": ["content/scripts.js"]
+    }
+  ],
+  "author": "David Vicente"
+}

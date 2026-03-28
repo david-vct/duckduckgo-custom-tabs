@@ -1,17 +1,15 @@
 {
   "private": true,
   "name": "duckduckgo-custom-tabs",
-  "description": "JavaScript-based extension with a sidebar panel. Adds a sidebar with a simple page.",
+  "description": "Customize DuckDuckGo search tabs by redirecting maps, videos, and other sections to your preferred services.",
   "version": "3.0.0",
   "license": "MIT",
   "type": "module",
   "author": {
-    "name": "Your Name",
-    "email": "your@email.com",
-    "url": "https://yourwebsite.com"
+    "name": "David Vicente"
   },
   "scripts": {
-    "dev": "extension dev",
+    "dev": "extension dev --browser=firefox",
     "start": "extension start",
     "build": "extension build",
     "preview": "extension preview",
