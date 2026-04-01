@@ -19,10 +19,11 @@ Instead of relying on DuckDuckGo's default destinations for tabs like Maps, Vide
 
 ## Current Scope
 
+- Active only on `https://duckduckgo.com/*`.
 - Built-in DuckDuckGo tabs supported today: Images, Maps, Videos, News, Shopping.
 - Configuration is edited from the classic extension popup opened from the browser toolbar.
 - URL templates must include the placeholder `{search}`.
-- The extension rewrites tab links on DuckDuckGo pages and injects extra custom tabs into the main tab navigation.
+- The extension rewrites tab links on DuckDuckGo pages and injects extra custom tabs into the main tab navigation before `More` when that menu is present.
 - Automatic redirection after landing on an existing DuckDuckGo vertical is intentionally out of scope for the first version.
 
 ## How Configuration Works
@@ -74,4 +75,4 @@ npm run build:firefox
 3. Configure at least one built-in tab and save.
 4. Visit a DuckDuckGo results page such as `https://duckduckgo.com/?q=toulouse`.
 5. Check that the configured built-in tab points to the replacement service.
-6. Add a custom tab and confirm that it appears in the DuckDuckGo tab bar.
+6. Add a custom tab and confirm that it appears in the DuckDuckGo tab bar before `More`.

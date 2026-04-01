@@ -9,6 +9,12 @@ import { onSettingsChanged, readSettings } from "../shared/storage.js"
 const INJECTED_ITEM_ATTR = "data-ddg-custom-tabs-item"
 const INJECTED_LINK_ATTR = "data-ddg-custom-tabs-link"
 const ORIGINAL_HREF_ATTR = "data-ddg-custom-tabs-original-href"
+const TAB_LIST_SELECTOR = "ul, ol"
+const PRIMARY_HOSTNAME = "duckduckgo.com"
+
+function isDuckDuckGoPage(locationObject = window.location) {
+  return locationObject?.hostname === PRIMARY_HOSTNAME
+}
 
 function isElementNode(node) {
   return node && node.nodeType === Node.ELEMENT_NODE
@@ -40,10 +46,41 @@ function shouldProcessMutations(mutations) {
   })
 }
 
-function collectTabGroups() {
-  const groups = new Map()
+function getTabListCandidates(nav) {
+  const directLists = Array.from(nav.children).filter((child) =>
+    child.matches?.(TAB_LIST_SELECTOR),
+  )
 
-  for (const anchor of document.querySelectorAll("a[href]")) {
+  if (directLists.length > 0) {
+    return directLists
+  }
+
+  return Array.from(nav.querySelectorAll(TAB_LIST_SELECTOR))
+}
+
+function isPrimaryTabCandidate(anchor) {
+  try {
+    const url = new URL(anchor.getAttribute("href") || "", window.location.href)
+
+    if (url.hostname !== PRIMARY_HOSTNAME) {
+      return false
+    }
+
+    return url.pathname === "/"
+  } catch {
+    return false
+  }
+}
+
+function collectTabAnchors(listElement) {
+  const anchorsById = new Map()
+  const ids = new Set()
+
+  for (const anchor of listElement.querySelectorAll("a[href]")) {
+    if (!isPrimaryTabCandidate(anchor)) {
+      continue
+    }
+
     const tabId = detectBuiltInTabId(
       anchor.getAttribute("href"),
       anchor.textContent,
@@ -53,42 +90,52 @@ function collectTabGroups() {
       continue
     }
 
-    const container = anchor.closest("ul, ol, nav, div")
-
-    if (!container) {
-      continue
-    }
-
-    const record = groups.get(container) || {
-      container,
-      anchorsById: new Map(),
-      ids: new Set(),
-    }
-
-    const group = record.anchorsById.get(tabId) || []
-    group.push(anchor)
-    record.anchorsById.set(tabId, group)
-    record.ids.add(tabId)
-    groups.set(container, record)
+    const anchors = anchorsById.get(tabId) || []
+    anchors.push(anchor)
+    anchorsById.set(tabId, anchors)
+    ids.add(tabId)
   }
 
-  return [...groups.values()].sort(
-    (left, right) => scoreTabGroup(right) - scoreTabGroup(left),
-  )
+  return { anchorsById, ids }
 }
 
-function scoreTabGroup(group) {
-  const containerTag = group.container.tagName.toLowerCase()
-  const topOffset = Math.max(group.container.getBoundingClientRect().top, 0)
-  const navBonus = group.container.closest("nav") ? 40 : 0
-  const listBonus = containerTag === "ul" || containerTag === "ol" ? 20 : 0
-  const anchorBonus = group.anchorsById.size * 100
+function getListPriority(record) {
+  const hasAll = record.ids.has("images") || record.ids.has("videos")
+  const hasMore = Boolean(record.moreItem)
 
-  return anchorBonus + navBonus + listBonus - topOffset / 10
+  return Number(hasAll) * 100 + Number(hasMore) * 10 + record.ids.size
 }
 
 function findPrimaryTabGroup() {
-  return collectTabGroups().find((group) => group.ids.size >= 3) ?? null
+  const candidates = []
+
+  for (const nav of document.querySelectorAll("nav")) {
+    for (const list of getTabListCandidates(nav)) {
+      const { anchorsById, ids } = collectTabAnchors(list)
+
+      if (ids.size === 0) {
+        continue
+      }
+
+      const moreItem = Array.from(list.children).find((child) =>
+        /more/i.test(child.textContent || ""),
+      )
+
+      candidates.push({
+        nav,
+        container: list,
+        anchorsById,
+        ids,
+        moreItem,
+      })
+    }
+  }
+
+  return (
+    candidates.sort((left, right) => {
+      return getListPriority(right) - getListPriority(left)
+    })[0] ?? null
+  )
 }
 
 function restoreOriginalHref(anchor) {
@@ -100,6 +147,13 @@ function restoreOriginalHref(anchor) {
 
   anchor.setAttribute("href", originalHref)
   anchor.removeAttribute("rel")
+  anchor.removeAttribute(ORIGINAL_HREF_ATTR)
+}
+
+function restoreOriginalHrefs(scope = document) {
+  for (const anchor of scope.querySelectorAll(`[${ORIGINAL_HREF_ATTR}]`)) {
+    restoreOriginalHref(anchor)
+  }
 }
 
 function rewriteBuiltInTabs(group, settings, searchTerm) {
@@ -141,6 +195,7 @@ function removeInjectedCustomTabs(scope = document) {
 function createCustomTabNode(referenceAnchor, customTab, targetUrl) {
   const listItem = document.createElement("li")
   const link = document.createElement("a")
+  const referenceItem = referenceAnchor?.closest("li")
 
   listItem.setAttribute(INJECTED_ITEM_ATTR, "true")
   link.setAttribute(INJECTED_LINK_ATTR, "true")
@@ -151,8 +206,8 @@ function createCustomTabNode(referenceAnchor, customTab, targetUrl) {
 
   if (referenceAnchor) {
     link.className = referenceAnchor.className
-    if (referenceAnchor.parentElement) {
-      listItem.className = referenceAnchor.parentElement.className
+    if (referenceItem) {
+      listItem.className = referenceItem.className
     }
   }
 
@@ -161,7 +216,7 @@ function createCustomTabNode(referenceAnchor, customTab, targetUrl) {
 }
 
 function injectCustomTabs(group, settings, searchTerm) {
-  removeInjectedCustomTabs(document)
+  removeInjectedCustomTabs(group.container)
 
   const referenceAnchor = group.container.querySelector("a[href]")
   const customTabs = [...settings.customTabs]
@@ -172,9 +227,7 @@ function injectCustomTabs(group, settings, searchTerm) {
     return
   }
 
-  const insertionAnchor = [...group.container.children].find((child) =>
-    /more/i.test(child.textContent || ""),
-  )
+  const insertionAnchor = group.moreItem
 
   for (const customTab of customTabs) {
     const targetUrl = buildTargetUrl(customTab.urlTemplate, searchTerm)
@@ -194,7 +247,41 @@ function injectCustomTabs(group, settings, searchTerm) {
   }
 }
 
+function stopManagedNavigation(event) {
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation()
+}
+
+function resolveManagedNavigation(anchor, settings, searchTerm) {
+  if (anchor.hasAttribute(INJECTED_LINK_ATTR)) {
+    return anchor.href
+  }
+
+  const originalHref = anchor.getAttribute(ORIGINAL_HREF_ATTR)
+  const tabId = detectBuiltInTabId(
+    originalHref || anchor.getAttribute("href"),
+    anchor.textContent,
+  )
+
+  if (!tabId) {
+    return null
+  }
+
+  const configuration = settings.builtInTabs.find((entry) => entry.id === tabId)
+
+  if (!configuration?.enabled) {
+    return null
+  }
+
+  return buildTargetUrl(configuration.urlTemplate, searchTerm)
+}
+
 export default function createContentApp() {
+  if (!isDuckDuckGoPage()) {
+    return () => {}
+  }
+
   if (window.__duckDuckGoCustomTabsCleanup) {
     return window.__duckDuckGoCustomTabsCleanup
   }
@@ -220,6 +307,7 @@ export default function createContentApp() {
 
     if (!searchTerm || !group) {
       removeInjectedCustomTabs(document)
+      restoreOriginalHrefs(document)
       return
     }
 
@@ -243,6 +331,10 @@ export default function createContentApp() {
   }
 
   const handleLocationChange = () => {
+    if (!isDuckDuckGoPage()) {
+      return
+    }
+
     scheduleApply(true)
   }
 
@@ -267,37 +359,14 @@ export default function createContentApp() {
       return
     }
 
-    const tabId = detectBuiltInTabId(
-      anchor.getAttribute("href"),
-      anchor.textContent,
-    )
-
-    if (!tabId) {
-      return
-    }
-
     const settings = await loadSettings()
-    const configuration = settings.builtInTabs.find(
-      (entry) => entry.id === tabId,
-    )
-
-    if (!configuration?.enabled) {
-      return
-    }
-
-    const targetUrl = buildTargetUrl(configuration.urlTemplate, searchTerm)
+    const targetUrl = resolveManagedNavigation(anchor, settings, searchTerm)
 
     if (!targetUrl) {
       return
     }
 
-    const resolvedHref = new URL(anchor.href, window.location.href).href
-
-    if (resolvedHref === targetUrl) {
-      return
-    }
-
-    event.preventDefault()
+    stopManagedNavigation(event)
     window.location.assign(targetUrl)
   }
 
@@ -357,6 +426,7 @@ export default function createContentApp() {
     )
     document.removeEventListener("click", handleDocumentClick, true)
     removeSettingsListener?.()
+    restoreOriginalHrefs(document)
     removeInjectedCustomTabs(document)
   }
 

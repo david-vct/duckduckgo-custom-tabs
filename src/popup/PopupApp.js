@@ -20,6 +20,53 @@ const state = {
 let render = () => {}
 let saveTimer = 0
 
+function captureFocusState(root) {
+  const activeElement = document.activeElement
+
+  if (!root || !activeElement || !root.contains(activeElement)) {
+    return null
+  }
+
+  return {
+    key: activeElement.getAttribute("data-focus-key"),
+    selectionStart:
+      typeof activeElement.selectionStart === "number"
+        ? activeElement.selectionStart
+        : null,
+    selectionEnd:
+      typeof activeElement.selectionEnd === "number"
+        ? activeElement.selectionEnd
+        : null,
+  }
+}
+
+function restoreFocusState(root, focusState) {
+  if (!root || !focusState?.key) {
+    return
+  }
+
+  const nextActiveElement = root.querySelector(
+    `[data-focus-key="${focusState.key}"]`,
+  )
+
+  if (!nextActiveElement) {
+    return
+  }
+
+  nextActiveElement.focus()
+
+  if (
+    typeof focusState.selectionStart === "number" &&
+    typeof focusState.selectionEnd === "number" &&
+    typeof nextActiveElement.setSelectionRange === "function"
+  ) {
+    nextActiveElement.setSelectionRange(
+      focusState.selectionStart,
+      focusState.selectionEnd,
+    )
+  }
+}
+
 function queueSave() {
   window.clearTimeout(saveTimer)
   saveTimer = window.setTimeout(async () => {
@@ -57,6 +104,7 @@ function createBuiltInRow(tab, index) {
   const input = document.createElement("input")
   input.className = "popup_input"
   input.type = "url"
+  input.setAttribute("data-focus-key", `built-in-${tab.id}-${index}`)
   input.value = tab.urlTemplate
   input.placeholder = `https://service.example/search?q=${SEARCH_PLACEHOLDER}`
   input.spellcheck = false
@@ -81,6 +129,7 @@ function createCustomRow(tab, index) {
   const nameInput = document.createElement("input")
   nameInput.className = "popup_input popup_name_input"
   nameInput.type = "text"
+  nameInput.setAttribute("data-focus-key", `custom-name-${tab.id}-${index}`)
   nameInput.placeholder = "New tab name"
   nameInput.value = tab.label
   nameInput.addEventListener("input", () => {
@@ -98,6 +147,7 @@ function createCustomRow(tab, index) {
   const urlInput = document.createElement("input")
   urlInput.className = "popup_input"
   urlInput.type = "url"
+  urlInput.setAttribute("data-focus-key", `custom-url-${tab.id}-${index}`)
   urlInput.placeholder = `https://service.example/search?q=${SEARCH_PLACEHOLDER}`
   urlInput.value = tab.urlTemplate
   urlInput.spellcheck = false
@@ -156,6 +206,8 @@ function PopupApp() {
   }
 
   render = () => {
+    const focusState = captureFocusState(root)
+
     root.textContent = ""
 
     const app = document.createElement("div")
@@ -167,11 +219,15 @@ function PopupApp() {
 
     const subtitle = document.createElement("p")
     subtitle.className = "popup_subtitle"
-    subtitle.textContent = `Use ${SEARCH_PLACEHOLDER} in each link.`
+    subtitle.textContent = `Active only on duckduckgo.com. Use ${SEARCH_PLACEHOLDER} in each link.`
 
     const status = document.createElement("p")
     status.className = `popup_status popup_status_${state.statusKind}`
     status.textContent = state.saving ? "Saving..." : state.status
+
+    const builtInTitle = document.createElement("p")
+    builtInTitle.className = "popup_section_title"
+    builtInTitle.textContent = "Redirect built-in tabs"
 
     const builtInList = document.createElement("div")
     builtInList.className = "popup_list"
@@ -182,7 +238,7 @@ function PopupApp() {
 
     const customTitle = document.createElement("p")
     customTitle.className = "popup_section_title"
-    customTitle.textContent = "Custom search tabs"
+    customTitle.textContent = "Custom tabs inserted before More"
 
     const customList = document.createElement("div")
     customList.className = "popup_list"
@@ -221,12 +277,14 @@ function PopupApp() {
     app.appendChild(title)
     app.appendChild(subtitle)
     app.appendChild(status)
+    app.appendChild(builtInTitle)
     app.appendChild(builtInList)
     app.appendChild(customTitle)
     app.appendChild(customList)
     app.appendChild(addButton)
     app.appendChild(resetButton)
     root.appendChild(app)
+    restoreFocusState(root, focusState)
   }
 
   render()
