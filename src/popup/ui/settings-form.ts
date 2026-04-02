@@ -1,8 +1,12 @@
-import { SEARCH_PLACEHOLDER } from "../../shared/domain/settings"
+import {
+  SEARCH_PLACEHOLDER,
+  getBuiltInTabPresets,
+} from "../../shared/domain/settings"
 import type { PopupState } from "../domain/popup-state"
 
 interface SettingsFormHandlers {
   onBuiltInChange: (index: number, value: string) => void
+  onBuiltInPresetApply: (index: number, value: string) => void
   onCustomLabelChange: (index: number, value: string) => void
   onCustomUrlChange: (index: number, value: string) => void
   onCustomRemove: (index: number) => void
@@ -18,9 +22,37 @@ function createBuiltInRow(
   const row = document.createElement("div")
   row.className = "popup_row"
 
+  const presets = getBuiltInTabPresets(tab.id)
+
+  const info = document.createElement("div")
+  info.className = "popup_label_group"
+
   const label = document.createElement("label")
   label.className = "popup_label"
   label.textContent = tab.label
+
+  info.appendChild(label)
+
+  if (presets.length > 0) {
+    const presetList = document.createElement("div")
+    presetList.className = "popup_preset_list"
+
+    for (const preset of presets) {
+      const presetButton = document.createElement("button")
+      presetButton.type = "button"
+      presetButton.className =
+        preset.urlTemplate === tab.urlTemplate
+          ? "popup_preset_button popup_preset_button_active"
+          : "popup_preset_button"
+      presetButton.textContent = preset.label
+      presetButton.addEventListener("click", () => {
+        handlers.onBuiltInPresetApply(index, preset.urlTemplate)
+      })
+      presetList.appendChild(presetButton)
+    }
+
+    info.appendChild(presetList)
+  }
 
   const input = document.createElement("input")
   input.className = "popup_input"
@@ -33,7 +65,7 @@ function createBuiltInRow(
     handlers.onBuiltInChange(index, input.value)
   })
 
-  row.appendChild(label)
+  row.appendChild(info)
   row.appendChild(input)
   return row
 }

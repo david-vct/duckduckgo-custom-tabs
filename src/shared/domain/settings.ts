@@ -1,6 +1,7 @@
 import type {
   BuiltInTab,
   BuiltInTabDefinition,
+  BuiltInTabPreset,
   CustomTab,
   Settings,
 } from "./types"
@@ -77,6 +78,64 @@ export const BUILT_IN_TAB_DEFINITIONS: BuiltInTabDefinition[] = [
   },
 ]
 
+export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
+  {
+    tabId: "images",
+    label: "Google Images",
+    urlTemplate: "https://www.google.com/search?tbm=isch&q={search}",
+  },
+  {
+    tabId: "images",
+    label: "Bing Images",
+    urlTemplate: "https://www.bing.com/images/search?q={search}",
+  },
+  {
+    tabId: "maps",
+    label: "Google Maps",
+    urlTemplate: "https://www.google.com/maps/search/{search}",
+  },
+  {
+    tabId: "maps",
+    label: "Bing Maps",
+    urlTemplate: "https://www.bing.com/maps?q={search}",
+  },
+  {
+    tabId: "maps",
+    label: "Apple Maps",
+    urlTemplate: "https://maps.apple.com/?q={search}",
+  },
+  {
+    tabId: "videos",
+    label: "YouTube",
+    urlTemplate: "https://www.youtube.com/results?search_query={search}",
+  },
+  {
+    tabId: "videos",
+    label: "Vimeo",
+    urlTemplate: "https://vimeo.com/search?q={search}",
+  },
+  {
+    tabId: "news",
+    label: "Google News",
+    urlTemplate: "https://news.google.com/search?q={search}",
+  },
+  {
+    tabId: "news",
+    label: "Bing News",
+    urlTemplate: "https://www.bing.com/news/search?q={search}",
+  },
+  {
+    tabId: "shopping",
+    label: "Google Shopping",
+    urlTemplate: "https://www.google.com/search?tbm=shop&q={search}",
+  },
+  {
+    tabId: "shopping",
+    label: "eBay",
+    urlTemplate: "https://www.ebay.com/sch/i.html?_nkw={search}",
+  },
+]
+
 const SAMPLE_SEARCH = "duckduckgo custom tabs"
 
 function slugifyLabel(label: string) {
@@ -117,6 +176,10 @@ export function createDefaultSettings(): Settings {
 
 export function getBuiltInTabDefinition(tabId: string) {
   return BUILT_IN_TAB_DEFINITIONS.find((definition) => definition.id === tabId)
+}
+
+export function getBuiltInTabPresets(tabId: string) {
+  return BUILT_IN_TAB_PRESETS.filter((preset) => preset.tabId === tabId)
 }
 
 export function detectBuiltInTabId(href?: string | null, label = "") {

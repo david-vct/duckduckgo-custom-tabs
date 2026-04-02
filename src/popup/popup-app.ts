@@ -82,6 +82,10 @@ function PopupApp() {
         updateBuiltInTab(state.settings, index, value)
         markDirty()
       },
+      onBuiltInPresetApply: (index, value) => {
+        updateBuiltInTab(state.settings, index, value)
+        markDirty()
+      },
       onCustomLabelChange: (index, value) => {
         updateCustomTabLabel(state.settings, index, value)
         markDirty()

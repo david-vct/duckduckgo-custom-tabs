@@ -28,3 +28,9 @@ export interface BuiltInTabDefinition {
   exampleUrl: string
   matches: (input: { url: URL; label: string }) => boolean
 }
+
+export interface BuiltInTabPreset {
+  tabId: string
+  label: string
+  urlTemplate: string
+}
