@@ -1,7 +1,42 @@
+import type {
+  BuiltInTab,
+  BuiltInTabDefinition,
+  CustomTab,
+  Settings,
+} from "./types"
+
+export interface BuiltInTabInput {
+  id?: string
+  enabled?: boolean
+  order?: number
+  urlTemplate?: string
+}
+
+export interface CustomTabInput {
+  id?: string
+  label?: string
+  enabled?: boolean
+  order?: number
+  urlTemplate?: string
+}
+
+export interface SettingsInput {
+  builtInTabs?: BuiltInTabInput[]
+  customTabs?: CustomTabInput[]
+}
+
+function isBuiltInTab(value: BuiltInTab | null): value is BuiltInTab {
+  return value !== null
+}
+
+function isCustomTab(value: CustomTab | null): value is CustomTab {
+  return value !== null
+}
+
 export const SETTINGS_STORAGE_KEY = "duckduckgoCustomTabs.settings"
 export const SEARCH_PLACEHOLDER = "{search}"
 
-export const BUILT_IN_TAB_DEFINITIONS = [
+export const BUILT_IN_TAB_DEFINITIONS: BuiltInTabDefinition[] = [
   {
     id: "images",
     label: "Images",
@@ -44,7 +79,7 @@ export const BUILT_IN_TAB_DEFINITIONS = [
 
 const SAMPLE_SEARCH = "duckduckgo custom tabs"
 
-function slugifyLabel(label) {
+function slugifyLabel(label: string) {
   return String(label || "")
     .trim()
     .toLowerCase()
@@ -52,12 +87,15 @@ function slugifyLabel(label) {
     .replace(/^-+|-+$/g, "")
 }
 
-function normalizeOrder(value, fallback) {
-  const numeric = Number.parseInt(value, 10)
+function normalizeOrder(value: unknown, fallback: number) {
+  const numeric = Number.parseInt(String(value), 10)
   return Number.isFinite(numeric) ? numeric : fallback
 }
 
-function createDefaultBuiltInTab(definition, order) {
+function createDefaultBuiltInTab(
+  definition: BuiltInTabDefinition,
+  order: number,
+): BuiltInTab {
   return {
     id: definition.id,
     label: definition.label,
@@ -68,7 +106,7 @@ function createDefaultBuiltInTab(definition, order) {
   }
 }
 
-export function createDefaultSettings() {
+export function createDefaultSettings(): Settings {
   return {
     builtInTabs: BUILT_IN_TAB_DEFINITIONS.map((definition, index) =>
       createDefaultBuiltInTab(definition, index),
@@ -77,15 +115,15 @@ export function createDefaultSettings() {
   }
 }
 
-export function getBuiltInTabDefinition(tabId) {
+export function getBuiltInTabDefinition(tabId: string) {
   return BUILT_IN_TAB_DEFINITIONS.find((definition) => definition.id === tabId)
 }
 
-export function detectBuiltInTabId(href, label = "") {
+export function detectBuiltInTabId(href?: string | null, label = "") {
   let url
 
   try {
-    url = new URL(href, "https://duckduckgo.com")
+    url = new URL(href || "", "https://duckduckgo.com")
   } catch {
     return null
   }
@@ -107,7 +145,7 @@ export function detectBuiltInTabId(href, label = "") {
   )
 }
 
-export function getSearchTermFromLocation(locationHref) {
+export function getSearchTermFromLocation(locationHref: string) {
   try {
     return new URL(locationHref).searchParams.get("q")?.trim() ?? ""
   } catch {
@@ -115,11 +153,11 @@ export function getSearchTermFromLocation(locationHref) {
   }
 }
 
-export function hasSearchPlaceholder(urlTemplate) {
+export function hasSearchPlaceholder(urlTemplate: string) {
   return String(urlTemplate || "").includes(SEARCH_PLACEHOLDER)
 }
 
-export function isSafeTemplateUrl(urlTemplate) {
+export function isSafeTemplateUrl(urlTemplate: string) {
   if (!hasSearchPlaceholder(urlTemplate)) {
     return false
   }
@@ -135,7 +173,7 @@ export function isSafeTemplateUrl(urlTemplate) {
   }
 }
 
-export function buildTargetUrl(urlTemplate, searchTerm) {
+export function buildTargetUrl(urlTemplate: string, searchTerm: string) {
   const trimmedTemplate = String(urlTemplate || "").trim()
 
   if (!trimmedTemplate || !isSafeTemplateUrl(trimmedTemplate)) {
@@ -148,8 +186,11 @@ export function buildTargetUrl(urlTemplate, searchTerm) {
   )
 }
 
-function normalizeBuiltInTab(entry, index) {
-  const definition = getBuiltInTabDefinition(entry?.id)
+function normalizeBuiltInTab(
+  entry: Partial<BuiltInTab> | null | undefined,
+  index: number,
+) {
+  const definition = getBuiltInTabDefinition(entry?.id || "")
 
   if (!definition) {
     return null
@@ -160,12 +201,15 @@ function normalizeBuiltInTab(entry, index) {
     label: definition.label,
     enabled: Boolean(entry?.enabled),
     order: normalizeOrder(entry?.order, index),
-    tabKind: "builtIn",
+    tabKind: "builtIn" as const,
     urlTemplate: String(entry?.urlTemplate || "").trim(),
   }
 }
 
-function normalizeCustomTab(entry, index) {
+function normalizeCustomTab(
+  entry: Partial<CustomTab> | null | undefined,
+  index: number,
+) {
   const label = String(entry?.label || "").trim()
   const template = String(entry?.urlTemplate || "").trim()
   const generatedId = slugifyLabel(label) || `custom-${index + 1}`
@@ -179,12 +223,14 @@ function normalizeCustomTab(entry, index) {
     label,
     enabled: entry?.enabled !== false,
     order: normalizeOrder(entry?.order, index),
-    tabKind: "custom",
+    tabKind: "custom" as const,
     urlTemplate: template,
   }
 }
 
-export function normalizeSettings(candidate) {
+export function normalizeSettings(
+  candidate: SettingsInput | null | undefined,
+): Settings {
   const defaults = createDefaultSettings()
   const input = candidate || {}
   const builtInById = new Map(
@@ -201,19 +247,21 @@ export function normalizeSettings(candidate) {
     }
 
     return normalizeBuiltInTab(merged, index)
-  }).filter(Boolean)
+  }).filter(isBuiltInTab)
 
   const customTabs = (Array.isArray(input.customTabs) ? input.customTabs : [])
     .map((entry, index) => normalizeCustomTab(entry, index))
-    .filter(Boolean)
+    .filter(isCustomTab)
     .sort((left, right) => left.order - right.order)
 
   return { builtInTabs, customTabs }
 }
 
-export function getSettingsValidationErrors(candidate) {
+export function getSettingsValidationErrors(
+  candidate: SettingsInput | null | undefined,
+) {
   const settings = normalizeSettings(candidate)
-  const errors = []
+  const errors: string[] = []
 
   for (const tab of settings.builtInTabs) {
     if (!tab.enabled) {
