@@ -1,12 +1,14 @@
 import type { BuiltInTab, CustomTab, Settings } from "../../shared/domain/types"
 
 export type PopupStatusKind = "info" | "success" | "error"
+export type ActiveTab = "builtIn" | "custom"
 
 export interface PopupState {
   saving: boolean
   status: string
   statusKind: PopupStatusKind
   settings: Settings
+  activeTab: ActiveTab
 }
 
 export function createPopupState(settings: Settings): PopupState {
@@ -15,6 +17,7 @@ export function createPopupState(settings: Settings): PopupState {
     status: "Loading...",
     statusKind: "info",
     settings,
+    activeTab: "builtIn",
   }
 }
 
