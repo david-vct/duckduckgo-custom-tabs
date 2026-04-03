@@ -1,15 +1,16 @@
 :root {
-  --popup-bg: #1a1b2e;
-  --popup-surface: #242538;
-  --popup-surface-hover: #2c2d44;
-  --popup-text: #e2e4f0;
-  --popup-muted: #8889a4;
-  --popup-border: #35364d;
-  --popup-accent: #6c9fff;
-  --popup-accent-dim: rgba(108, 159, 255, 0.12);
-  --popup-danger: #f06060;
-  --popup-danger-dim: rgba(240, 96, 96, 0.12);
-  --popup-success: #5dcc8a;
+  --popup-bg: #161616;
+  --popup-surface: #1e1e1e;
+  --popup-surface-hover: #2b2b2b;
+  --popup-text: #d5d7db;
+  --popup-muted: #aaaaaa;
+  --popup-border: #2b2b2b;
+  --popup-accent: #7295f6;
+  --popup-accent-dim: rgba(114, 149, 246, 0.14);
+  --popup-danger: #e05555;
+  --popup-danger-dim: rgba(224, 85, 85, 0.12);
+  --popup-success: #4caf50;
+  --popup-input-bg: #1e1e1e;
   --popup-radius: 10px;
   --popup-radius-sm: 6px;
 }
@@ -168,14 +169,18 @@ body {
 .popup_list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+}
+
+.popup_list .popup_custom_card + .popup_custom_card {
+  margin-top: 6px;
 }
 
 .popup_card {
-  background: var(--popup-surface);
-  border: 1px solid var(--popup-border);
-  border-radius: var(--popup-radius);
-  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 10px 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -238,13 +243,13 @@ body {
   width: 100%;
   min-width: 0;
   height: 34px;
-  border: 1px solid var(--popup-border);
-  border-radius: var(--popup-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--popup-radius);
   padding: 0 10px;
   font-size: 12.5px;
   font-family: inherit;
   color: var(--popup-text);
-  background: var(--popup-bg);
+  background: var(--popup-input-bg);
   transition: border-color 0.15s;
 }
 
