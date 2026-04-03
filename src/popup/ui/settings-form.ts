@@ -18,6 +18,13 @@ export interface SettingsFormHandlers {
 let builtInPanelEl: HTMLElement | null = null
 let customPanelEl: HTMLElement | null = null
 
+function createButtonLabel(text: string) {
+  const label = document.createElement("span")
+  label.className = "popup_button_label"
+  label.textContent = text
+  return label
+}
+
 function buildBuiltInCard(
   tab: PopupState["settings"]["builtInTabs"][number],
   index: number,
@@ -46,7 +53,7 @@ function buildBuiltInCard(
         preset.urlTemplate === tab.urlTemplate
           ? "popup_preset_button popup_preset_button_active"
           : "popup_preset_button"
-      btn.textContent = preset.label
+      btn.appendChild(createButtonLabel(preset.label))
       btn.addEventListener("click", () =>
         handlers.onBuiltInPresetApply(index, preset.urlTemplate),
       )
@@ -176,7 +183,7 @@ function buildCustomPanel(
   const addBtn = document.createElement("button")
   addBtn.type = "button"
   addBtn.className = "popup_add_button"
-  addBtn.textContent = "+ Add tab"
+  addBtn.appendChild(createButtonLabel("+ Add tab"))
   addBtn.addEventListener("click", handlers.onCustomAdd)
   panel.appendChild(addBtn)
 
@@ -234,7 +241,7 @@ export function initPopup(
   const resetBtn = document.createElement("button")
   resetBtn.type = "button"
   resetBtn.className = "popup_reset_button"
-  resetBtn.textContent = "Reset all"
+  resetBtn.appendChild(createButtonLabel("Reset all"))
   resetBtn.addEventListener("click", handlers.onReset)
   footer.appendChild(footerHint)
   footer.appendChild(resetBtn)

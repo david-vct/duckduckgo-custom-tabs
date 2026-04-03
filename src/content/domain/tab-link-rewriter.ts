@@ -99,6 +99,46 @@ export function removeInjectedCustomTabs(scope: ParentNode = document) {
   }
 }
 
+function isCurrentLocationAnchor(anchor: HTMLAnchorElement) {
+  try {
+    const anchorUrl = new URL(anchor.href, window.location.href)
+    const currentUrl = new URL(window.location.href)
+
+    return (
+      anchorUrl.origin === currentUrl.origin &&
+      anchorUrl.pathname === currentUrl.pathname &&
+      anchorUrl.search === currentUrl.search
+    )
+  } catch {
+    return false
+  }
+}
+
+function findReferenceAnchor(group: TabGroup) {
+  const anchors = Array.from(
+    group.container.querySelectorAll<HTMLAnchorElement>("a[href]"),
+  ).filter((anchor) =>
+    Boolean(
+      detectBuiltInTabId(anchor.getAttribute("href"), anchor.textContent || ""),
+    ),
+  )
+
+  return (
+    anchors.find(
+      (anchor) =>
+        !anchor.hasAttribute(INJECTED_LINK_ATTR) &&
+        !isCurrentLocationAnchor(anchor),
+    ) ||
+    anchors.find(
+      (anchor) =>
+        !anchor.hasAttribute(INJECTED_LINK_ATTR) &&
+        anchor.getAttribute("tabindex") !== "-1",
+    ) ||
+    anchors[0] ||
+    null
+  )
+}
+
 function createCustomTabNode(
   referenceAnchor: HTMLAnchorElement | null,
   customTab: Settings["customTabs"][number],
@@ -117,6 +157,9 @@ function createCustomTabNode(
 
   if (referenceAnchor) {
     link.className = referenceAnchor.className
+    link.removeAttribute("aria-current")
+    link.removeAttribute("tabindex")
+
     if (referenceItem) {
       listItem.className = referenceItem.className
     }
@@ -133,8 +176,7 @@ export function injectCustomTabs(
 ) {
   removeInjectedCustomTabs(group.container)
 
-  const referenceAnchor =
-    group.container.querySelector<HTMLAnchorElement>("a[href]")
+  const referenceAnchor = findReferenceAnchor(group)
   const customTabs = [...settings.customTabs]
     .filter((tab) => tab.enabled)
     .sort((left, right) => left.order - right.order)

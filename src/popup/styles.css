@@ -203,6 +203,8 @@ body {
 
 .popup_preset_button {
   appearance: none;
+  display: inline-grid;
+  place-items: center;
   border: 1px solid var(--popup-border);
   background: transparent;
   color: var(--popup-muted);
@@ -212,6 +214,8 @@ body {
   font-family: inherit;
   font-size: 11px;
   font-weight: 600;
+  line-height: normal;
+  text-align: center;
   cursor: pointer;
   transition:
     background 0.15s,
@@ -284,6 +288,8 @@ body {
 
 .popup_add_button {
   appearance: none;
+  display: grid;
+  place-items: center;
   width: 100%;
   height: 36px;
   margin-top: 8px;
@@ -294,6 +300,8 @@ body {
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
+  line-height: normal;
+  text-align: center;
   cursor: pointer;
   transition:
     background 0.15s,
@@ -349,11 +357,13 @@ body {
 
 .popup_reset_button {
   appearance: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   height: 28px;
-  padding: 0 14px;
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 4px;
   border: 1px solid var(--popup-border);
   border-radius: var(--popup-radius-sm);
   background: transparent;
@@ -361,13 +371,26 @@ body {
   font-family: inherit;
   font-size: 11.5px;
   font-weight: 600;
-  line-height: 1;
+  line-height: normal;
+  text-align: center;
   white-space: nowrap;
   cursor: pointer;
   transition:
     background 0.15s,
     color 0.15s,
     border-color 0.15s;
+}
+
+.popup_button_label {
+  display: block;
+  padding-top: 1px;
+}
+
+.popup_preset_button::-moz-focus-inner,
+.popup_add_button::-moz-focus-inner,
+.popup_reset_button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
 }
 
 .popup_reset_button:hover {
