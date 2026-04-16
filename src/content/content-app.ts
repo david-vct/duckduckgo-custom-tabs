@@ -1,7 +1,4 @@
-import {
-  buildTargetUrl,
-  getSearchTermFromLocation,
-} from "../shared/domain/settings"
+import { getSearchTermFromLocation } from "../shared/domain/settings"
 import type { Settings } from "../shared/domain/types"
 import { onSettingsChanged, readSettings } from "../shared/platform/storage"
 import { findPrimaryTabGroup } from "./domain/tab-group-finder"

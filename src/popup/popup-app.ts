@@ -1,5 +1,6 @@
 import "./styles.css"
 import { createDefaultSettings } from "../shared/domain/settings"
+import type { Settings } from "../shared/domain/types"
 import {
   readSettings,
   resetSettings,
@@ -27,40 +28,69 @@ const state = createPopupState(createDefaultSettings())
 
 let rootElement: HTMLElement | null = null
 let handlers: SettingsFormHandlers
-let saveTimer = 0
+let saveSequence = 0
+let lastStartedSave = 0
+let saveChain = Promise.resolve()
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unknown error"
+}
+
+function cloneSettings(settings: Settings): Settings {
+  return {
+    builtInTabs: settings.builtInTabs.map((tab) => ({ ...tab })),
+    customTabs: settings.customTabs.map((tab) => ({ ...tab })),
+  }
 }
 
 function updateStatus() {
   if (rootElement) updateStatusDisplay(rootElement, state)
 }
 
-function queueSave() {
-  clearTimeout(saveTimer)
-  saveTimer = window.setTimeout(async () => {
-    try {
-      state.saving = true
-      updateStatus()
-      state.settings = await writeSettings(state.settings)
-      state.status = "Saved"
-      state.statusKind = "success"
-    } catch (error) {
-      state.status = getErrorMessage(error)
-      state.statusKind = "error"
-    } finally {
-      state.saving = false
-      updateStatus()
-    }
-  }, 250)
+function persistLatest(sequence: number) {
+  if (sequence <= lastStartedSave) {
+    return saveChain
+  }
+
+  lastStartedSave = sequence
+  const snapshot = cloneSettings(state.settings)
+
+  saveChain = saveChain
+    .catch(() => undefined)
+    .then(async () => {
+      try {
+        state.saving = true
+        updateStatus()
+
+        const savedSettings = await writeSettings(snapshot)
+
+        if (sequence === saveSequence) {
+          state.settings = savedSettings
+          state.status = "Saved"
+          state.statusKind = "success"
+        }
+      } catch (error) {
+        if (sequence === saveSequence) {
+          state.status = getErrorMessage(error)
+          state.statusKind = "error"
+        }
+      } finally {
+        if (sequence === saveSequence) {
+          state.saving = false
+          updateStatus()
+        }
+      }
+    })
+
+  return saveChain
 }
 
 function markDirty() {
+  saveSequence += 1
   state.status = "Saving..."
   state.statusKind = "info"
   updateStatus()
-  queueSave()
+  void persistLatest(saveSequence)
 }
 
 function PopupApp() {
@@ -93,7 +123,7 @@ function PopupApp() {
     onCustomAdd() {
       appendCustomTab(state.settings)
       rebuildCustomPanel(state, handlers)
-      updateStatus()
+      markDirty()
     },
     onTabSwitch(tab) {
       state.activeTab = tab

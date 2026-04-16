@@ -2,11 +2,15 @@
   "private": true,
   "name": "duckduckgo-custom-tabs",
   "description": "Customize DuckDuckGo search tabs by redirecting maps, videos, and other sections to your preferred services.",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "author": {
     "name": "David Vicente"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/david-vct/duckduckgo-custom-tabs.git"
   },
   "scripts": {
     "dev": "extension dev --browser=firefox",
