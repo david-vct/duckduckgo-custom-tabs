@@ -277,10 +277,8 @@ function normalizeCustomTab(
   const template = String(entry?.urlTemplate || "").trim()
   const generatedId = slugifyLabel(label) || `custom-${index + 1}`
 
-  if (!label && !template) {
-    return null
-  }
-
+  // Don't filter out empty tabs - allow them to be saved so users can
+  // fill them in later. Only enforce label requirement for the validation.
   return {
     id: String(entry?.id || generatedId),
     label,

@@ -68,7 +68,7 @@ export function updateCustomTabUrl(
 export function appendCustomTab(settings: Settings) {
   settings.customTabs.push({
     id: `custom-${Date.now()}`,
-    label: "",
+    label: "New Tab",
     enabled: false,
     order: settings.customTabs.length,
     tabKind: "custom",

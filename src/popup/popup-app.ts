@@ -86,6 +86,13 @@ function persistLatest(sequence: number) {
 }
 
 function markDirty() {
+  // Don't save before real settings have been loaded
+  // This prevents race conditions where loading default settings
+  // would overwrite in-memory changes
+  if (state.status === "Loading...") {
+    return
+  }
+
   saveSequence += 1
   state.status = "Saving..."
   state.statusKind = "info"

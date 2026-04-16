@@ -290,6 +290,8 @@ body {
 }
 
 .popup_name_input {
+  flex: 1 1 auto;
+  max-width: 50%;
   font-weight: 600;
 }
 
@@ -306,6 +308,7 @@ body {
 .popup_custom_card_header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
