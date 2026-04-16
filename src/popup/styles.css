@@ -13,12 +13,38 @@
   --popup-input-bg: #1e1e1e;
   --popup-radius: 10px;
   --popup-radius-sm: 6px;
+  --popup-scrollbar: #3a3a3a;
+  --popup-scrollbar-hover: #4a4a4a;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Custom scrollbar for all browsers */
+.popup_panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup_panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.popup_panel::-webkit-scrollbar-thumb {
+  background: var(--popup-scrollbar);
+  border-radius: 4px;
+}
+
+.popup_panel::-webkit-scrollbar-thumb:hover {
+  background: var(--popup-scrollbar-hover);
+}
+
+/* Firefox scrollbar */
+.popup_panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--popup-scrollbar) transparent;
 }
 
 html,
