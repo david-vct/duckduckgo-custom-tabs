@@ -4,7 +4,7 @@
   "chromium:manifest_version": 3,
   "firefox:manifest_version": 2,
   "version": "1.0.0",
-  "name": "duckduckgo-custom-tabs",
+  "name": "DuckDuckGo Custom Tabs",
   "description": "Customize DuckDuckGo search tabs by redirecting maps, videos, and other sections to your preferred services.",
   "icons": {
     "16": "images/icon.png",
