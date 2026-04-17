@@ -11,6 +11,7 @@ dist
 
 # misc
 .DS_Store
+*.zip
 
 # local env files
 .env.local
