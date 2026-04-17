@@ -10,6 +10,7 @@ import {
   appendCustomTab,
   createPopupState,
   removeCustomTab,
+  selectBuiltInPreset,
   updateBuiltInTab,
   updateCustomTabLabel,
   updateCustomTabUrl,
@@ -106,11 +107,11 @@ function PopupApp() {
 
   handlers = {
     onBuiltInChange(index, value) {
-      updateBuiltInTab(state.settings, index, value)
+      updateBuiltInTab(state.settings, index, value, true) // true = manual edit clears preset
       markDirty()
     },
     onBuiltInPresetApply(index, value) {
-      updateBuiltInTab(state.settings, index, value)
+      selectBuiltInPreset(state.settings, index, value)
       rebuildBuiltInPanel(state, handlers)
       markDirty()
     },

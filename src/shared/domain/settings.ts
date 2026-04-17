@@ -11,6 +11,7 @@ export interface BuiltInTabInput {
   enabled?: boolean
   order?: number
   urlTemplate?: string
+  selectedPresetUrl?: string
 }
 
 export interface CustomTabInput {
@@ -252,7 +253,7 @@ export function buildTargetUrl(urlTemplate: string, searchTerm: string) {
 function normalizeBuiltInTab(
   entry: Partial<BuiltInTab> | null | undefined,
   index: number,
-) {
+): BuiltInTab | null {
   const definition = getBuiltInTabDefinition(entry?.id || "")
 
   if (!definition) {
@@ -266,6 +267,7 @@ function normalizeBuiltInTab(
     order: normalizeOrder(entry?.order, index),
     tabKind: "builtIn" as const,
     urlTemplate: String(entry?.urlTemplate || "").trim(),
+    selectedPresetUrl: entry?.selectedPresetUrl,
   }
 }
 

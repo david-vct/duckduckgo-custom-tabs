@@ -25,11 +25,32 @@ export function updateBuiltInTab(
   settings: Settings,
   index: number,
   urlTemplate: string,
+  isManualEdit = false,
 ) {
   const nextBuiltInTab: BuiltInTab = {
     ...settings.builtInTabs[index],
     enabled: Boolean(urlTemplate.trim()),
     urlTemplate,
+    // Clear selected preset when URL is manually edited
+    selectedPresetUrl: isManualEdit ? undefined : settings.builtInTabs[index].selectedPresetUrl,
+  }
+
+  settings.builtInTabs[index] = nextBuiltInTab
+}
+
+export function selectBuiltInPreset(
+  settings: Settings,
+  index: number,
+  urlTemplate: string,
+) {
+  const currentTab = settings.builtInTabs[index]
+  const isCurrentlySelected = currentTab.selectedPresetUrl === urlTemplate
+
+  const nextBuiltInTab: BuiltInTab = {
+    ...currentTab,
+    enabled: !isCurrentlySelected, // Toggle: disable if deselecting
+    urlTemplate: isCurrentlySelected ? "" : urlTemplate,
+    selectedPresetUrl: isCurrentlySelected ? undefined : urlTemplate,
   }
 
   settings.builtInTabs[index] = nextBuiltInTab

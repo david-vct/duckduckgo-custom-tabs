@@ -11,6 +11,8 @@ export interface BaseTab {
 
 export interface BuiltInTab extends BaseTab {
   tabKind: "builtIn"
+  /** URL of the selected preset (if any) - used to detect manual edits vs preset selection */
+  selectedPresetUrl?: string
 }
 
 export interface CustomTab extends BaseTab {

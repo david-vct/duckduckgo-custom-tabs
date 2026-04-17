@@ -50,7 +50,7 @@ function buildBuiltInCard(
       const btn = document.createElement("button")
       btn.type = "button"
       btn.className =
-        preset.urlTemplate === tab.urlTemplate
+        preset.urlTemplate === tab.selectedPresetUrl
           ? "popup_preset_button popup_preset_button_active"
           : "popup_preset_button"
       btn.appendChild(createButtonLabel(preset.label))
@@ -100,7 +100,8 @@ function buildCustomCard(
   const removeBtn = document.createElement("button")
   removeBtn.type = "button"
   removeBtn.className = "popup_remove"
-  removeBtn.textContent = "✕"
+  removeBtn.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
   removeBtn.title = "Remove this tab"
   removeBtn.addEventListener("click", () => handlers.onCustomRemove(index))
 
@@ -203,7 +204,7 @@ export function initPopup(
   header.className = "popup_header"
   const title = document.createElement("h1")
   title.className = "popup_title"
-  title.textContent = "DuckDuckGo Tabs"
+  title.textContent = "DuckDuckGo Custom Tabs"
   const status = document.createElement("span")
   status.className = "popup_status"
   header.appendChild(title)
