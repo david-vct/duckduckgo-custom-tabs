@@ -1,33 +1,63 @@
 # DuckDuckGo Custom Tabs
 
-A browser extension that lets you decide where DuckDuckGo search tabs should take you.
+A browser extension that lets you redirect DuckDuckGo search tabs like Maps, Videos, Images, and more to the services you prefer, such as Google Maps, YouTube, or X.
 
-Instead of opening DuckDuckGo's default sections, you can send tabs like Maps, Videos, News, or Shopping to the services you actually use, and add your own shortcuts alongside them.
+## What does it do?
 
-## What It Does
+- Redirect search tabs (Maps, Videos, Images, News, Shopping) to any URL
+- Add new custom search tabs for any website (e.g. Wikipedia or Reddit)
+- Configure service redirections in one click (Google Maps, Google Images, YouTube, etc.)
+- Support fully custom URLs for complete flexibility
 
-- Replace DuckDuckGo tabs such as Images, Maps, Videos, News, and Shopping with your preferred services.
-- Keep using DuckDuckGo for web search while opening specific tabs in other tools.
-- Add extra tabs for sites you want to access directly from the search page.
-- Manage your preferred destinations from the extension popup.
+### Examples
 
-## Examples
-
-- Open Google Maps when clicking the Maps tab.
-- Send video searches to YouTube instead of DuckDuckGo Videos.
-- Redirect Shopping searches to Google Shopping or eBay.
-- Open X from the News tab.
+- Open Google Maps when clicking the Maps search tab.
+- Redirect the Videos tab to YouTube.
+- Add a custom Translate tab redirecting to your preferred translator service.
 - Add a custom Wikipedia tab that searches the current query.
 
-## Scope
+### Overview
 
-- Active only on `https://duckduckgo.com/*`.
-- Rewrites tab links on the results page and inserts custom tabs before `More` when that tab group is available.
-- Supports Chromium and Firefox builds.
+<div align="center">
+  <img src="src/images/screenshot-1.png" width="49%" />
+  <img src="src/images/screenshot-2.png" width="49%" />
+</div>
 
-## How Configuration Works
+## Installation
 
-Each destination is defined as a URL template containing `{search}`.
+### As a user
+
+This extension is not yet available in official stores. **Coming soon**.
+
+<!-- You can install the extension through the following official stores:
+
+- [Mozilla Add-ons](https://addons.mozilla.org/): Add DuckDuckGo Custom Tabs to Firefox.
+- [Chrome Web Store](https://chrome.google.com/webstore/): Add DuckDuckGo Custom Tabs to Chromium-based browsers (e.g., Google Chrome, Edge). -->
+
+### As a developer
+
+If you want to test or modify the extension, follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo-name/duckduckgo-custom-tabs.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Build the extension:
+   ```bash
+   npm run build
+   ```
+4. Load the unpacked extension:
+   - In Chrome: go to `chrome://extensions/`, enable Developer mode, and select "Load unpacked"
+   - In Firefox: go to `about:debugging#/runtime/this-firefox`, choose "Load Temporary Add-on"
+
+## Usage
+
+Each tab redirection must have a valid URL template containing `{search}`.
+The URL will be computed before redirection and `{search}` will be replaced by the current search query.
 
 ```text
 https://www.google.com/maps/search/{search}
@@ -35,13 +65,32 @@ https://www.youtube.com/results?search_query={search}
 https://en.wikipedia.org/wiki/Special:Search?search={search}
 ```
 
-The current DuckDuckGo query is URL-encoded before replacement.
+## Development workflow
 
-## Development
+- To start a development server (this will watch for changes and rebuild automatically):
 
-```bash
-npm install
-npm run dev
-npm run build
-npm test
-```
+  ```bash
+  npm run dev
+  ```
+
+- To manually build the extension for production:
+
+  ```bash
+  npm run build
+  ```
+
+- To run tests:
+
+  ```bash
+  npm test
+  ```
+
+- To build and package:
+  ```bash
+  npm run release
+  ```
+
+## Notes
+
+- The extension works only on `https://duckduckgo.com/*`.
+- Compatible with the latest builds of both Chromium and Firefox.
