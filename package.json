@@ -20,7 +20,10 @@
     "test": "node --test",
     "build:chrome": "extension build --browser chrome",
     "build:firefox": "extension build --browser firefox",
-    "build:edge": "extension build --browser edge"
+    "build:edge": "extension build --browser edge",
+    "release:chrome": "extension build --browser chrome --zip --zip-filename duckduckgo-custom-tabs-$npm_package_version-chrome",
+    "release:firefox": "extension build --browser firefox --zip --zip-filename duckduckgo-custom-tabs-$npm_package_version-firefox",
+    "release": "npm run release:chrome && npm run release:firefox"
   },
   "dependencies": {},
   "devDependencies": {
