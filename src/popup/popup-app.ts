@@ -10,7 +10,9 @@ import {
   appendCustomTab,
   createPopupState,
   removeCustomTab,
+  selectBuiltInCustom,
   selectBuiltInPreset,
+  toggleCustomTabPreset,
   updateBuiltInTab,
   updateCustomTabLabel,
   updateCustomTabUrl,
@@ -115,6 +117,11 @@ function PopupApp() {
       rebuildBuiltInPanel(state, handlers)
       markDirty()
     },
+    onBuiltInCustomSelect(index) {
+      selectBuiltInCustom(state.settings, index)
+      rebuildBuiltInPanel(state, handlers)
+      markDirty()
+    },
     onCustomLabelChange(index, value) {
       updateCustomTabLabel(state.settings, index, value)
       markDirty()
@@ -130,6 +137,11 @@ function PopupApp() {
     },
     onCustomAdd() {
       appendCustomTab(state.settings)
+      rebuildCustomPanel(state, handlers)
+      markDirty()
+    },
+    onCustomPresetApply(preset) {
+      toggleCustomTabPreset(state.settings, preset)
       rebuildCustomPanel(state, handlers)
       markDirty()
     },

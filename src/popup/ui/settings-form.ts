@@ -1,16 +1,25 @@
 import {
   SEARCH_PLACEHOLDER,
   getBuiltInTabPresets,
+  getCustomTabPresets,
 } from "../../shared/domain/settings"
-import type { ActiveTab, PopupState } from "../domain/popup-state"
+import type { CustomTabPreset } from "../../shared/domain/types"
+import {
+  isCustomTabPresetActive,
+  shouldShowBuiltInCustomUrl,
+  type ActiveTab,
+  type PopupState,
+} from "../domain/popup-state"
 
 export interface SettingsFormHandlers {
   onBuiltInChange: (index: number, value: string) => void
   onBuiltInPresetApply: (index: number, value: string) => void
+  onBuiltInCustomSelect: (index: number) => void
   onCustomLabelChange: (index: number, value: string) => void
   onCustomUrlChange: (index: number, value: string) => void
   onCustomRemove: (index: number) => void
   onCustomAdd: () => void
+  onCustomPresetApply: (preset: CustomTabPreset) => void
   onReset: () => void
   onTabSwitch: (tab: ActiveTab) => void
 }
@@ -43,6 +52,9 @@ function buildBuiltInCard(
   label.textContent = tab.label
   header.appendChild(label)
 
+  const controls = document.createElement("div")
+  controls.className = "popup_card_controls"
+
   if (presets.length > 0) {
     const presetList = document.createElement("div")
     presetList.className = "popup_preset_list"
@@ -59,8 +71,22 @@ function buildBuiltInCard(
       )
       presetList.appendChild(btn)
     }
-    header.appendChild(presetList)
+    controls.appendChild(presetList)
   }
+
+  const customBtn = document.createElement("button")
+  customBtn.type = "button"
+  customBtn.className = shouldShowBuiltInCustomUrl(tab)
+    ? "popup_preset_button popup_preset_button_active"
+    : "popup_preset_button"
+  customBtn.appendChild(createButtonLabel("Custom"))
+  customBtn.addEventListener("click", () => handlers.onBuiltInCustomSelect(index))
+
+  const customActions = document.createElement("div")
+  customActions.className = "popup_custom_preset_slot"
+  customActions.appendChild(customBtn)
+  controls.appendChild(customActions)
+  header.appendChild(controls)
 
   const input = document.createElement("input")
   input.className = "popup_input"
@@ -73,7 +99,9 @@ function buildBuiltInCard(
   )
 
   card.appendChild(header)
-  card.appendChild(input)
+  if (shouldShowBuiltInCustomUrl(tab)) {
+    card.appendChild(input)
+  }
   return card
 }
 
@@ -101,7 +129,7 @@ function buildCustomCard(
   removeBtn.type = "button"
   removeBtn.className = "popup_remove"
   removeBtn.innerHTML =
-    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+    '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 10M2 10L10 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
   removeBtn.title = "Remove this tab"
   removeBtn.addEventListener("click", () => handlers.onCustomRemove(index))
 
@@ -134,7 +162,7 @@ function buildBuiltInPanel(
 
   const hint = document.createElement("p")
   hint.className = "popup_hint"
-  hint.textContent = `Redirect DuckDuckGo's built-in tabs to other services. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
+  hint.textContent = `Redirect DuckDuckGo's search tabs to other services. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
   panel.appendChild(hint)
 
   const list = document.createElement("div")
@@ -157,8 +185,39 @@ function buildCustomPanel(
 
   const hint = document.createElement("p")
   hint.className = "popup_hint"
-  hint.textContent = `Add extra search tabs that appear before "More" on DuckDuckGo. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
+  hint.textContent = `Add new tabs that appear before "More" on DuckDuckGo. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
   panel.appendChild(hint)
+
+  const presets = getCustomTabPresets()
+  if (presets.length > 0) {
+    const presetSection = document.createElement("div")
+    presetSection.className = "popup_preset_section"
+
+    const presetLabel = document.createElement("div")
+    presetLabel.className = "popup_preset_section_label"
+    presetLabel.textContent = "Quick presets"
+    presetSection.appendChild(presetLabel)
+
+    const presetList = document.createElement("div")
+    presetList.className = "popup_preset_list popup_preset_list_start"
+
+    for (const preset of presets) {
+      const btn = document.createElement("button")
+      btn.type = "button"
+      btn.className = isCustomTabPresetActive(
+        state.settings,
+        preset.urlTemplate,
+      )
+        ? "popup_preset_button popup_preset_button_active"
+        : "popup_preset_button"
+      btn.appendChild(createButtonLabel(preset.label))
+      btn.addEventListener("click", () => handlers.onCustomPresetApply(preset))
+      presetList.appendChild(btn)
+    }
+
+    presetSection.appendChild(presetList)
+    panel.appendChild(presetSection)
+  }
 
   if (state.settings.customTabs.length === 0) {
     const empty = document.createElement("div")
@@ -168,8 +227,8 @@ function buildCustomPanel(
     icon.textContent = "+"
     const text = document.createElement("div")
     text.className = "popup_empty_text"
-    text.textContent = "No custom tabs yet"
-    empty.appendChild(icon)
+    text.textContent = "No new tabs yet"
+    //empty.appendChild(icon)
     empty.appendChild(text)
     panel.appendChild(empty)
   } else {
@@ -216,13 +275,13 @@ export function initPopup(
   builtInTab.type = "button"
   builtInTab.className =
     state.activeTab === "builtIn" ? "popup_tab popup_tab_active" : "popup_tab"
-  builtInTab.innerHTML = 'Built-in<span class="popup_tab_badge">0</span>'
+  builtInTab.innerHTML = 'Redirect<span class="popup_tab_badge">0</span>'
   builtInTab.addEventListener("click", () => handlers.onTabSwitch("builtIn"))
   const customTab = document.createElement("button")
   customTab.type = "button"
   customTab.className =
     state.activeTab === "custom" ? "popup_tab popup_tab_active" : "popup_tab"
-  customTab.innerHTML = 'Custom<span class="popup_tab_badge">0</span>'
+  customTab.innerHTML = 'Add new tabs<span class="popup_tab_badge">0</span>'
   customTab.addEventListener("click", () => handlers.onTabSwitch("custom"))
   tabBar.appendChild(builtInTab)
   tabBar.appendChild(customTab)
@@ -277,8 +336,10 @@ export function rebuildBuiltInPanel(
   handlers: SettingsFormHandlers,
 ) {
   if (!builtInPanelEl) return
+  const scrollTop = builtInPanelEl.scrollTop
   const next = buildBuiltInPanel(state, handlers)
   builtInPanelEl.replaceWith(next)
+  next.scrollTop = scrollTop
   builtInPanelEl = next
 }
 
@@ -287,8 +348,10 @@ export function rebuildCustomPanel(
   handlers: SettingsFormHandlers,
 ) {
   if (!customPanelEl) return
+  const scrollTop = customPanelEl.scrollTop
   const next = buildCustomPanel(state, handlers)
   customPanelEl.replaceWith(next)
+  next.scrollTop = scrollTop
   customPanelEl = next
 }
 

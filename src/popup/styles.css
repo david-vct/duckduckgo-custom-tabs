@@ -220,6 +220,15 @@ body {
   gap: 10px;
 }
 
+.popup_card_controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .popup_label {
   font-size: 13px;
   font-weight: 700;
@@ -231,6 +240,31 @@ body {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 5px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.popup_preset_list_start {
+  justify-content: flex-start;
+}
+
+.popup_custom_preset_slot {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.popup_preset_section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.popup_preset_section_label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--popup-muted);
 }
 
 .popup_preset_button {
@@ -323,6 +357,7 @@ body {
 
 .popup_custom_card_header .popup_remove {
   flex: 0 0 auto;
+  margin-left: 4px;
 }
 
 .popup_add_button {
@@ -362,8 +397,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--popup-radius-sm);
   background: transparent;

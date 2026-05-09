@@ -3,6 +3,7 @@ import type {
   BuiltInTabDefinition,
   BuiltInTabPreset,
   CustomTab,
+  CustomTabPreset,
   Settings,
 } from "./types"
 
@@ -112,8 +113,8 @@ export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
   },
   {
     tabId: "videos",
-    label: "Vimeo",
-    urlTemplate: "https://vimeo.com/search?q={search}",
+    label: "Dailymotion",
+    urlTemplate: "https://www.dailymotion.com/search/{search}/top-results",
   },
   {
     tabId: "news",
@@ -132,8 +133,36 @@ export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
   },
   {
     tabId: "shopping",
+    label: "Amazon",
+    urlTemplate: "https://www.amazon.com/s?k={search}",
+  },
+  {
+    tabId: "shopping",
     label: "eBay",
     urlTemplate: "https://www.ebay.com/sch/i.html?_nkw={search}",
+  },
+]
+
+export const CUSTOM_TAB_PRESETS: CustomTabPreset[] = [
+  {
+    label: "Wikipedia",
+    urlTemplate: "https://en.wikipedia.org/wiki/Special:Search?search={search}",
+  },
+  {
+    label: "Google",
+    urlTemplate: "https://www.google.com/search?q={search}",
+  },
+  {
+    label: "X",
+    urlTemplate: "https://x.com/search?q={search}&src=typed_query",
+  },
+  {
+    label: "Reddit",
+    urlTemplate: "https://www.reddit.com/search/?q={search}",
+  },
+  {
+    label: "GitHub",
+    urlTemplate: "https://github.com/search?q={search}",
   },
 ]
 
@@ -181,6 +210,10 @@ export function getBuiltInTabDefinition(tabId: string) {
 
 export function getBuiltInTabPresets(tabId: string) {
   return BUILT_IN_TAB_PRESETS.filter((preset) => preset.tabId === tabId)
+}
+
+export function getCustomTabPresets() {
+  return CUSTOM_TAB_PRESETS
 }
 
 export function detectBuiltInTabId(href?: string | null, label = "") {

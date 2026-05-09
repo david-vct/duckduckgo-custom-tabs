@@ -1,7 +1,14 @@
-import type { BuiltInTab, CustomTab, Settings } from "../../shared/domain/types"
+import type {
+  BuiltInTab,
+  CustomTab,
+  CustomTabPreset,
+  Settings,
+} from "../../shared/domain/types"
 
 export type PopupStatusKind = "info" | "success" | "error"
 export type ActiveTab = "builtIn" | "custom"
+
+const BUILT_IN_CUSTOM_SELECTION = "__custom__"
 
 export interface PopupState {
   saving: boolean
@@ -31,8 +38,40 @@ export function updateBuiltInTab(
     ...settings.builtInTabs[index],
     enabled: Boolean(urlTemplate.trim()),
     urlTemplate,
-    // Clear selected preset when URL is manually edited
-    selectedPresetUrl: isManualEdit ? undefined : settings.builtInTabs[index].selectedPresetUrl,
+    selectedPresetUrl: isManualEdit
+      ? BUILT_IN_CUSTOM_SELECTION
+      : settings.builtInTabs[index].selectedPresetUrl,
+  }
+
+  settings.builtInTabs[index] = nextBuiltInTab
+}
+
+export function isBuiltInCustomSelected(tab: BuiltInTab) {
+  return tab.selectedPresetUrl === BUILT_IN_CUSTOM_SELECTION
+}
+
+export function shouldShowBuiltInCustomUrl(tab: BuiltInTab) {
+  return isBuiltInCustomSelected(tab) || Boolean(tab.urlTemplate.trim() && !tab.selectedPresetUrl)
+}
+
+export function selectBuiltInCustom(settings: Settings, index: number) {
+  const currentTab = settings.builtInTabs[index]
+
+  if (isBuiltInCustomSelected(currentTab)) {
+    settings.builtInTabs[index] = {
+      ...currentTab,
+      enabled: false,
+      urlTemplate: "",
+      selectedPresetUrl: undefined,
+    }
+
+    return
+  }
+
+  const nextBuiltInTab: BuiltInTab = {
+    ...currentTab,
+    enabled: Boolean(currentTab.urlTemplate.trim()),
+    selectedPresetUrl: BUILT_IN_CUSTOM_SELECTION,
   }
 
   settings.builtInTabs[index] = nextBuiltInTab
@@ -86,21 +125,88 @@ export function updateCustomTabUrl(
   settings.customTabs[index] = nextCustomTab
 }
 
-export function appendCustomTab(settings: Settings) {
-  settings.customTabs.push({
-    id: `custom-${Date.now()}`,
-    label: "New Tab",
-    enabled: false,
+function createCustomTab(
+  settings: Settings,
+  input: Pick<CustomTab, "label" | "urlTemplate">,
+): CustomTab {
+  const label = input.label.trim()
+  const urlTemplate = input.urlTemplate.trim()
+
+  return {
+    id: `custom-${Date.now()}-${settings.customTabs.length + 1}`,
+    label,
+    enabled: Boolean(label && urlTemplate),
     order: settings.customTabs.length,
     tabKind: "custom",
-    urlTemplate: "",
-  })
+    urlTemplate,
+  }
 }
 
-export function removeCustomTab(settings: Settings, index: number) {
-  settings.customTabs.splice(index, 1)
+export function appendCustomTab(settings: Settings) {
+  settings.customTabs.push(
+    createCustomTab(settings, {
+      label: "New Tab",
+      urlTemplate: "",
+    }),
+  )
+}
+
+function normalizeCustomTabUrl(urlTemplate: string) {
+  return urlTemplate.trim()
+}
+
+export function findCustomTabIndexByUrl(settings: Settings, urlTemplate: string) {
+  const normalizedUrl = urlTemplate.trim()
+
+  return settings.customTabs.findIndex(
+    (tab) => normalizeCustomTabUrl(tab.urlTemplate) === normalizedUrl,
+  )
+}
+
+export function isCustomTabPresetActive(settings: Settings, urlTemplate: string) {
+  return findCustomTabIndexByUrl(settings, urlTemplate) !== -1
+}
+
+export function appendCustomTabFromPreset(
+  settings: Settings,
+  preset: CustomTabPreset,
+) {
+  if (isCustomTabPresetActive(settings, preset.urlTemplate)) {
+    return false
+  }
+
+  settings.customTabs.push(createCustomTab(settings, preset))
+  return true
+}
+
+function reindexCustomTabs(settings: Settings) {
   settings.customTabs = settings.customTabs.map((entry, entryIndex) => ({
     ...entry,
     order: entryIndex,
   }))
+}
+
+export function removeCustomTab(settings: Settings, index: number) {
+  settings.customTabs.splice(index, 1)
+  reindexCustomTabs(settings)
+}
+
+export function removeCustomTabByUrl(settings: Settings, urlTemplate: string) {
+  const index = findCustomTabIndexByUrl(settings, urlTemplate)
+
+  if (index === -1) {
+    return false
+  }
+
+  removeCustomTab(settings, index)
+  return true
+}
+
+export function toggleCustomTabPreset(
+  settings: Settings,
+  preset: CustomTabPreset,
+) {
+  return removeCustomTabByUrl(settings, preset.urlTemplate)
+    ? "removed"
+    : (appendCustomTabFromPreset(settings, preset), "added")
 }
