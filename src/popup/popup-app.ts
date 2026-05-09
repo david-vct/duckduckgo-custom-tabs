@@ -10,6 +10,7 @@ import {
   appendCustomTab,
   createPopupState,
   removeCustomTab,
+  selectBuiltInCustom,
   selectBuiltInPreset,
   toggleCustomTabPreset,
   updateBuiltInTab,
@@ -113,6 +114,11 @@ function PopupApp() {
     },
     onBuiltInPresetApply(index, value) {
       selectBuiltInPreset(state.settings, index, value)
+      rebuildBuiltInPanel(state, handlers)
+      markDirty()
+    },
+    onBuiltInCustomSelect(index) {
+      selectBuiltInCustom(state.settings, index)
       rebuildBuiltInPanel(state, handlers)
       markDirty()
     },

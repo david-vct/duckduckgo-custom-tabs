@@ -7,7 +7,11 @@ import {
   appendCustomTabFromPreset,
   isCustomTabPresetActive,
   removeCustomTabByUrl,
+  selectBuiltInCustom,
+  selectBuiltInPreset,
+  shouldShowBuiltInCustomUrl,
   toggleCustomTabPreset,
+  updateBuiltInTab,
 } from "./popup-state.ts"
 
 test("appendCustomTab adds a blank disabled custom tab", () => {
@@ -150,4 +154,80 @@ test("toggleCustomTabPreset adds inactive preset tab on click", () => {
   assert.equal(action, "added")
   assert.equal(settings.customTabs.length, 1)
   assert.equal(settings.customTabs[0]?.label, "Wikipedia")
+})
+
+test("selectBuiltInCustom keeps existing URL and reveals custom input", () => {
+  const settings = createDefaultSettings()
+  settings.builtInTabs[0]!.urlTemplate = "https://example.com/search?q={search}"
+
+  selectBuiltInCustom(settings, 0)
+
+  assert.equal(
+    settings.builtInTabs[0]?.urlTemplate,
+    "https://example.com/search?q={search}",
+  )
+  assert.equal(shouldShowBuiltInCustomUrl(settings.builtInTabs[0]!), true)
+})
+
+test("selectBuiltInCustom toggles off and restores built-in defaults", () => {
+  const settings = createDefaultSettings()
+
+  selectBuiltInPreset(
+    settings,
+    0,
+    "https://www.google.com/search?tbm=isch&q={search}",
+  )
+  selectBuiltInCustom(settings, 0)
+  selectBuiltInCustom(settings, 0)
+
+  assert.equal(settings.builtInTabs[0]?.enabled, false)
+  assert.equal(settings.builtInTabs[0]?.urlTemplate, "")
+  assert.equal(settings.builtInTabs[0]?.selectedPresetUrl, undefined)
+  assert.equal(shouldShowBuiltInCustomUrl(settings.builtInTabs[0]!), false)
+})
+
+test("selectBuiltInCustom preserves legacy custom URL before explicit toggle-off", () => {
+  const settings = createDefaultSettings()
+  settings.builtInTabs[0] = {
+    ...settings.builtInTabs[0]!,
+    enabled: true,
+    urlTemplate: "https://legacy.example/search?q={search}",
+    selectedPresetUrl: undefined,
+  }
+
+  selectBuiltInCustom(settings, 0)
+
+  assert.equal(settings.builtInTabs[0]?.enabled, true)
+  assert.equal(
+    settings.builtInTabs[0]?.urlTemplate,
+    "https://legacy.example/search?q={search}",
+  )
+  assert.equal(settings.builtInTabs[0]?.selectedPresetUrl, "__custom__")
+  assert.equal(shouldShowBuiltInCustomUrl(settings.builtInTabs[0]!), true)
+})
+
+test("updateBuiltInTab manual edit marks built-in tab as custom", () => {
+  const settings = createDefaultSettings()
+
+  updateBuiltInTab(settings, 0, "https://example.com/search?q={search}", true)
+
+  assert.equal(shouldShowBuiltInCustomUrl(settings.builtInTabs[0]!), true)
+  assert.equal(settings.builtInTabs[0]?.enabled, true)
+})
+
+test("selectBuiltInPreset hides custom input again", () => {
+  const settings = createDefaultSettings()
+
+  updateBuiltInTab(settings, 0, "https://example.com/search?q={search}", true)
+  selectBuiltInPreset(
+    settings,
+    0,
+    "https://www.google.com/search?tbm=isch&q={search}",
+  )
+
+  assert.equal(shouldShowBuiltInCustomUrl(settings.builtInTabs[0]!), false)
+  assert.equal(
+    settings.builtInTabs[0]?.selectedPresetUrl,
+    "https://www.google.com/search?tbm=isch&q={search}",
+  )
 })

@@ -6,6 +6,7 @@ import {
 import type { CustomTabPreset } from "../../shared/domain/types"
 import {
   isCustomTabPresetActive,
+  shouldShowBuiltInCustomUrl,
   type ActiveTab,
   type PopupState,
 } from "../domain/popup-state"
@@ -13,6 +14,7 @@ import {
 export interface SettingsFormHandlers {
   onBuiltInChange: (index: number, value: string) => void
   onBuiltInPresetApply: (index: number, value: string) => void
+  onBuiltInCustomSelect: (index: number) => void
   onCustomLabelChange: (index: number, value: string) => void
   onCustomUrlChange: (index: number, value: string) => void
   onCustomRemove: (index: number) => void
@@ -50,6 +52,9 @@ function buildBuiltInCard(
   label.textContent = tab.label
   header.appendChild(label)
 
+  const controls = document.createElement("div")
+  controls.className = "popup_card_controls"
+
   if (presets.length > 0) {
     const presetList = document.createElement("div")
     presetList.className = "popup_preset_list"
@@ -66,8 +71,22 @@ function buildBuiltInCard(
       )
       presetList.appendChild(btn)
     }
-    header.appendChild(presetList)
+    controls.appendChild(presetList)
   }
+
+  const customBtn = document.createElement("button")
+  customBtn.type = "button"
+  customBtn.className = shouldShowBuiltInCustomUrl(tab)
+    ? "popup_preset_button popup_preset_button_active"
+    : "popup_preset_button"
+  customBtn.appendChild(createButtonLabel("Custom"))
+  customBtn.addEventListener("click", () => handlers.onBuiltInCustomSelect(index))
+
+  const customActions = document.createElement("div")
+  customActions.className = "popup_custom_preset_slot"
+  customActions.appendChild(customBtn)
+  controls.appendChild(customActions)
+  header.appendChild(controls)
 
   const input = document.createElement("input")
   input.className = "popup_input"
@@ -80,7 +99,9 @@ function buildBuiltInCard(
   )
 
   card.appendChild(header)
-  card.appendChild(input)
+  if (shouldShowBuiltInCustomUrl(tab)) {
+    card.appendChild(input)
+  }
   return card
 }
 

@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Enhance configuration text and labels for clarity
+- Custom url option for build-in tabs (hide url input)
 
 ### Fixed
 

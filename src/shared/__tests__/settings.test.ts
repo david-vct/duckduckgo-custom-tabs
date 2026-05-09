@@ -54,6 +54,34 @@ test("settings model normalizes and validates URLs", () => {
   )
 })
 
+test("settings normalization preserves custom built-in URL selection state", () => {
+  const normalized = normalizeSettings({
+    builtInTabs: [
+      {
+        id: "images",
+        enabled: true,
+        urlTemplate: "https://example.com/search?q={search}",
+        selectedPresetUrl: "__custom__",
+      },
+    ],
+  })
+
+  assert.equal(
+    normalized.builtInTabs.find((entry) => entry.id === "images")
+      ?.selectedPresetUrl,
+    "__custom__",
+  )
+})
+
+test("default settings reset built-in tabs to no redirection state", () => {
+  const defaults = createDefaultSettings()
+  const imagesTab = defaults.builtInTabs.find((entry) => entry.id === "images")
+
+  assert.equal(imagesTab?.enabled, false)
+  assert.equal(imagesTab?.urlTemplate, "")
+  assert.equal(imagesTab?.selectedPresetUrl, undefined)
+})
+
 test("default settings expose every built-in DuckDuckGo tab", () => {
   const defaults = createDefaultSettings()
 

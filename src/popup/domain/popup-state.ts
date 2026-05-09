@@ -8,6 +8,8 @@ import type {
 export type PopupStatusKind = "info" | "success" | "error"
 export type ActiveTab = "builtIn" | "custom"
 
+const BUILT_IN_CUSTOM_SELECTION = "__custom__"
+
 export interface PopupState {
   saving: boolean
   status: string
@@ -36,8 +38,40 @@ export function updateBuiltInTab(
     ...settings.builtInTabs[index],
     enabled: Boolean(urlTemplate.trim()),
     urlTemplate,
-    // Clear selected preset when URL is manually edited
-    selectedPresetUrl: isManualEdit ? undefined : settings.builtInTabs[index].selectedPresetUrl,
+    selectedPresetUrl: isManualEdit
+      ? BUILT_IN_CUSTOM_SELECTION
+      : settings.builtInTabs[index].selectedPresetUrl,
+  }
+
+  settings.builtInTabs[index] = nextBuiltInTab
+}
+
+export function isBuiltInCustomSelected(tab: BuiltInTab) {
+  return tab.selectedPresetUrl === BUILT_IN_CUSTOM_SELECTION
+}
+
+export function shouldShowBuiltInCustomUrl(tab: BuiltInTab) {
+  return isBuiltInCustomSelected(tab) || Boolean(tab.urlTemplate.trim() && !tab.selectedPresetUrl)
+}
+
+export function selectBuiltInCustom(settings: Settings, index: number) {
+  const currentTab = settings.builtInTabs[index]
+
+  if (isBuiltInCustomSelected(currentTab)) {
+    settings.builtInTabs[index] = {
+      ...currentTab,
+      enabled: false,
+      urlTemplate: "",
+      selectedPresetUrl: undefined,
+    }
+
+    return
+  }
+
+  const nextBuiltInTab: BuiltInTab = {
+    ...currentTab,
+    enabled: Boolean(currentTab.urlTemplate.trim()),
+    selectedPresetUrl: BUILT_IN_CUSTOM_SELECTION,
   }
 
   settings.builtInTabs[index] = nextBuiltInTab

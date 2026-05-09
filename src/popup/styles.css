@@ -220,6 +220,15 @@ body {
   gap: 10px;
 }
 
+.popup_card_controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .popup_label {
   font-size: 13px;
   font-weight: 700;
@@ -231,10 +240,18 @@ body {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 5px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .popup_preset_list_start {
   justify-content: flex-start;
+}
+
+.popup_custom_preset_slot {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
 }
 
 .popup_preset_section {
