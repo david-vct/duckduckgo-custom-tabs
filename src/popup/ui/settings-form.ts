@@ -108,7 +108,7 @@ function buildCustomCard(
   removeBtn.type = "button"
   removeBtn.className = "popup_remove"
   removeBtn.innerHTML =
-    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+    '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 10M2 10L10 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
   removeBtn.title = "Remove this tab"
   removeBtn.addEventListener("click", () => handlers.onCustomRemove(index))
 
@@ -207,7 +207,7 @@ function buildCustomPanel(
     const text = document.createElement("div")
     text.className = "popup_empty_text"
     text.textContent = "No new tabs yet"
-    empty.appendChild(icon)
+    //empty.appendChild(icon)
     empty.appendChild(text)
     panel.appendChild(empty)
   } else {

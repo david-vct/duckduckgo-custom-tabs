@@ -340,6 +340,7 @@ body {
 
 .popup_custom_card_header .popup_remove {
   flex: 0 0 auto;
+  margin-left: 4px;
 }
 
 .popup_add_button {
@@ -379,8 +380,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--popup-radius-sm);
   background: transparent;
