@@ -134,7 +134,7 @@ function buildBuiltInPanel(
 
   const hint = document.createElement("p")
   hint.className = "popup_hint"
-  hint.textContent = `Redirect DuckDuckGo's built-in tabs to other services. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
+  hint.textContent = `Redirect DuckDuckGo's search tabs to other services. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
   panel.appendChild(hint)
 
   const list = document.createElement("div")
@@ -157,7 +157,7 @@ function buildCustomPanel(
 
   const hint = document.createElement("p")
   hint.className = "popup_hint"
-  hint.textContent = `Add extra search tabs that appear before "More" on DuckDuckGo. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
+  hint.textContent = `Add new tabs that appear before "More" on DuckDuckGo. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
   panel.appendChild(hint)
 
   if (state.settings.customTabs.length === 0) {
@@ -216,13 +216,13 @@ export function initPopup(
   builtInTab.type = "button"
   builtInTab.className =
     state.activeTab === "builtIn" ? "popup_tab popup_tab_active" : "popup_tab"
-  builtInTab.innerHTML = 'Built-in<span class="popup_tab_badge">0</span>'
+  builtInTab.innerHTML = 'Redirect<span class="popup_tab_badge">0</span>'
   builtInTab.addEventListener("click", () => handlers.onTabSwitch("builtIn"))
   const customTab = document.createElement("button")
   customTab.type = "button"
   customTab.className =
     state.activeTab === "custom" ? "popup_tab popup_tab_active" : "popup_tab"
-  customTab.innerHTML = 'Custom<span class="popup_tab_badge">0</span>'
+  customTab.innerHTML = 'Add New<span class="popup_tab_badge">0</span>'
   customTab.addEventListener("click", () => handlers.onTabSwitch("custom"))
   tabBar.appendChild(builtInTab)
   tabBar.appendChild(customTab)
