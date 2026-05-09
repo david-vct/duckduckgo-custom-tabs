@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 
 - Enhance configuration text and labels for clarity
 
+### Fixed
+
+- Preserve scroll position on rebuilding config panel
+
 ## [1.0.0] - 2026-04-18
 
 ### Added

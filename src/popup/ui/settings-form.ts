@@ -277,8 +277,10 @@ export function rebuildBuiltInPanel(
   handlers: SettingsFormHandlers,
 ) {
   if (!builtInPanelEl) return
+  const scrollTop = builtInPanelEl.scrollTop
   const next = buildBuiltInPanel(state, handlers)
   builtInPanelEl.replaceWith(next)
+  next.scrollTop = scrollTop
   builtInPanelEl = next
 }
 
