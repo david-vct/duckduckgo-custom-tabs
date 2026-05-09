@@ -2,13 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Build-in presets services (Dailymotion and Amazon)
+
+### Changed
+
+- Enhance configuration text and labels for clarity
+
 ## [1.0.0] - 2026-04-18
 
 ### Added
 
 - Replace default DuckDuckGo tabs (Maps, Images, Videos, News, Shopping, etc.) with your preferred services
 - Add custom tabs with your own shortcuts that use the current search query
-- Built-in presets for popular services (Google Maps, YouTube, Wikipedia, etc.)
+- Built-in presets for popular services (Google Maps, YouTube, etc.)
 - Popup interface to configure and manage all destinations
 - Dark theme matching DuckDuckGo's interface
 - Support for Firefox, Chrome, and Edge

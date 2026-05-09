@@ -112,8 +112,8 @@ export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
   },
   {
     tabId: "videos",
-    label: "Vimeo",
-    urlTemplate: "https://vimeo.com/search?q={search}",
+    label: "Dailymotion",
+    urlTemplate: "https://www.dailymotion.com/search/{search}/top-results",
   },
   {
     tabId: "news",
@@ -129,6 +129,11 @@ export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
     tabId: "shopping",
     label: "Google Shopping",
     urlTemplate: "https://www.google.com/search?tbm=shop&q={search}",
+  },
+  {
+    tabId: "shopping",
+    label: "Amazon",
+    urlTemplate: "https://www.amazon.com/s?k={search}",
   },
   {
     tabId: "shopping",
