@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import {
   BUILT_IN_TAB_PRESETS,
+  CUSTOM_TAB_PRESETS,
   SEARCH_PLACEHOLDER,
   buildTargetUrl,
   createDefaultSettings,
@@ -67,6 +68,28 @@ test("built-in presets ship only with safe URL templates", () => {
   assert.ok(BUILT_IN_TAB_PRESETS.length > 0)
 
   for (const preset of BUILT_IN_TAB_PRESETS) {
+    assert.equal(
+      preset.urlTemplate.includes(SEARCH_PLACEHOLDER),
+      true,
+      `${preset.label} must include ${SEARCH_PLACEHOLDER}`,
+    )
+
+    const targetUrl = buildTargetUrl(preset.urlTemplate, "paris france")
+
+    assert.notEqual(targetUrl, null, `${preset.label} should build a URL`)
+    assert.match(targetUrl || "", /^https?:\/\//)
+    assert.match(
+      targetUrl || "",
+      /paris(?:%20|\+)france/,
+      `${preset.label} should include the encoded search term`,
+    )
+  }
+})
+
+test("custom tab presets ship only with safe URL templates", () => {
+  assert.ok(CUSTOM_TAB_PRESETS.length >= 4)
+
+  for (const preset of CUSTOM_TAB_PRESETS) {
     assert.equal(
       preset.urlTemplate.includes(SEARCH_PLACEHOLDER),
       true,

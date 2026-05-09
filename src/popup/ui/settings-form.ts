@@ -1,8 +1,14 @@
 import {
   SEARCH_PLACEHOLDER,
   getBuiltInTabPresets,
+  getCustomTabPresets,
 } from "../../shared/domain/settings"
-import type { ActiveTab, PopupState } from "../domain/popup-state"
+import type { CustomTabPreset } from "../../shared/domain/types"
+import {
+  isCustomTabPresetActive,
+  type ActiveTab,
+  type PopupState,
+} from "../domain/popup-state"
 
 export interface SettingsFormHandlers {
   onBuiltInChange: (index: number, value: string) => void
@@ -11,6 +17,7 @@ export interface SettingsFormHandlers {
   onCustomUrlChange: (index: number, value: string) => void
   onCustomRemove: (index: number) => void
   onCustomAdd: () => void
+  onCustomPresetApply: (preset: CustomTabPreset) => void
   onReset: () => void
   onTabSwitch: (tab: ActiveTab) => void
 }
@@ -160,6 +167,37 @@ function buildCustomPanel(
   hint.textContent = `Add new tabs that appear before "More" on DuckDuckGo. Use ${SEARCH_PLACEHOLDER} as the search term placeholder.`
   panel.appendChild(hint)
 
+  const presets = getCustomTabPresets()
+  if (presets.length > 0) {
+    const presetSection = document.createElement("div")
+    presetSection.className = "popup_preset_section"
+
+    const presetLabel = document.createElement("div")
+    presetLabel.className = "popup_preset_section_label"
+    presetLabel.textContent = "Quick presets"
+    presetSection.appendChild(presetLabel)
+
+    const presetList = document.createElement("div")
+    presetList.className = "popup_preset_list popup_preset_list_start"
+
+    for (const preset of presets) {
+      const btn = document.createElement("button")
+      btn.type = "button"
+      btn.className = isCustomTabPresetActive(
+        state.settings,
+        preset.urlTemplate,
+      )
+        ? "popup_preset_button popup_preset_button_active"
+        : "popup_preset_button"
+      btn.appendChild(createButtonLabel(preset.label))
+      btn.addEventListener("click", () => handlers.onCustomPresetApply(preset))
+      presetList.appendChild(btn)
+    }
+
+    presetSection.appendChild(presetList)
+    panel.appendChild(presetSection)
+  }
+
   if (state.settings.customTabs.length === 0) {
     const empty = document.createElement("div")
     empty.className = "popup_empty"
@@ -168,7 +206,7 @@ function buildCustomPanel(
     icon.textContent = "+"
     const text = document.createElement("div")
     text.className = "popup_empty_text"
-    text.textContent = "No custom tabs yet"
+    text.textContent = "No new tabs yet"
     empty.appendChild(icon)
     empty.appendChild(text)
     panel.appendChild(empty)
@@ -222,7 +260,7 @@ export function initPopup(
   customTab.type = "button"
   customTab.className =
     state.activeTab === "custom" ? "popup_tab popup_tab_active" : "popup_tab"
-  customTab.innerHTML = 'Add New<span class="popup_tab_badge">0</span>'
+  customTab.innerHTML = 'Add new tabs<span class="popup_tab_badge">0</span>'
   customTab.addEventListener("click", () => handlers.onTabSwitch("custom"))
   tabBar.appendChild(builtInTab)
   tabBar.appendChild(customTab)
@@ -289,8 +327,10 @@ export function rebuildCustomPanel(
   handlers: SettingsFormHandlers,
 ) {
   if (!customPanelEl) return
+  const scrollTop = customPanelEl.scrollTop
   const next = buildCustomPanel(state, handlers)
   customPanelEl.replaceWith(next)
+  next.scrollTop = scrollTop
   customPanelEl = next
 }
 

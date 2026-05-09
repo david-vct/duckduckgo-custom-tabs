@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Build-in presets services (Dailymotion and Amazon)
+- Quick preset badges in Add New for common custom tabs
 
 ### Changed
 

@@ -36,3 +36,8 @@ export interface BuiltInTabPreset {
   label: string
   urlTemplate: string
 }
+
+export interface CustomTabPreset {
+  label: string
+  urlTemplate: string
+}

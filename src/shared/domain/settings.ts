@@ -3,6 +3,7 @@ import type {
   BuiltInTabDefinition,
   BuiltInTabPreset,
   CustomTab,
+  CustomTabPreset,
   Settings,
 } from "./types"
 
@@ -142,6 +143,29 @@ export const BUILT_IN_TAB_PRESETS: BuiltInTabPreset[] = [
   },
 ]
 
+export const CUSTOM_TAB_PRESETS: CustomTabPreset[] = [
+  {
+    label: "Wikipedia",
+    urlTemplate: "https://en.wikipedia.org/wiki/Special:Search?search={search}",
+  },
+  {
+    label: "Google",
+    urlTemplate: "https://www.google.com/search?q={search}",
+  },
+  {
+    label: "X",
+    urlTemplate: "https://x.com/search?q={search}&src=typed_query",
+  },
+  {
+    label: "Reddit",
+    urlTemplate: "https://www.reddit.com/search/?q={search}",
+  },
+  {
+    label: "GitHub",
+    urlTemplate: "https://github.com/search?q={search}",
+  },
+]
+
 const SAMPLE_SEARCH = "duckduckgo custom tabs"
 
 function slugifyLabel(label: string) {
@@ -186,6 +210,10 @@ export function getBuiltInTabDefinition(tabId: string) {
 
 export function getBuiltInTabPresets(tabId: string) {
   return BUILT_IN_TAB_PRESETS.filter((preset) => preset.tabId === tabId)
+}
+
+export function getCustomTabPresets() {
+  return CUSTOM_TAB_PRESETS
 }
 
 export function detectBuiltInTabId(href?: string | null, label = "") {
