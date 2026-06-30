@@ -25,14 +25,15 @@ A browser extension that lets you redirect DuckDuckGo search tabs like Maps, Vid
 
 ## Installation
 
-### As a user
+### On Firefox
 
-This extension is not yet available in official stores. **Coming soon**.
+Install the extension directly from the [Mozilla Addons Store](https://addons.mozilla.org/en-US/firefox/addon/duckduckgo-custom-tabs/).
 
-<!-- You can install the extension through the following official stores:
+### On Chrome
 
-- [Mozilla Add-ons](https://addons.mozilla.org/): Add DuckDuckGo Custom Tabs to Firefox.
-- [Chrome Web Store](https://chrome.google.com/webstore/): Add DuckDuckGo Custom Tabs to Chromium-based browsers (e.g., Google Chrome, Edge). -->
+The extension is **not yet available on the Chrome Web Store**.
+
+You can still use it by installing it as an unpacked extension. See the **[As a developer](#as-a-developer)** section for installation instructions.
 
 ### As a developer
 
