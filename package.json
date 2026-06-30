@@ -2,7 +2,7 @@
   "private": true,
   "name": "duckduckgo-custom-tabs",
   "description": "Customize DuckDuckGo search tabs by redirecting maps, videos, and other sections to your preferred services.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -21,8 +21,8 @@
     "build:chrome": "extension build --browser chrome",
     "build:firefox": "extension build --browser firefox",
     "build:edge": "extension build --browser edge",
-    "release:chrome": "extension build --browser chrome --zip --zip-filename duckduckgo-custom-tabs-$npm_package_version-chrome",
-    "release:firefox": "extension build --browser firefox --zip --zip-filename duckduckgo-custom-tabs-$npm_package_version-firefox",
+    "release:chrome": "extension build --browser chrome --zip",
+    "release:firefox": "extension build --browser firefox --zip",
     "release": "npm run release:chrome && npm run release:firefox"
   },
   "dependencies": {},
