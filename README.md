@@ -31,9 +31,7 @@ Install the extension directly from the **[Mozilla Addons Store](https://addons.
 
 ### On Chrome
 
-The extension is **not yet available on the Chrome Web Store**.
-
-You can still use it by installing it as an unpacked extension (see [this section](#as-a-developer)).
+Install the extension directly from the **[Chrome Store](https://chromewebstore.google.com/detail/duckduckgo-custom-tabs/gdldjooogiiofclofagphnlbfhfklmip)**.
 
 ### As a developer
 
